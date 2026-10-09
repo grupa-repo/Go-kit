@@ -11,6 +11,8 @@
 
 - `apperr/` — errors whose message is safe for an API caller; `Message(err)` extracts it, `""` otherwise.
 - `problem/` — the `application/problem+json` error body.
+- `requestid/` — `X-Request-ID` middleware and `FromContext`. Rejects inbound values that are unsafe to log.
+- `httpserver/` — `Server.Run(ctx)` drains in-flight requests on cancel; `SignalContext` cancels on SIGINT/SIGTERM. Tests use `Serve` on a `127.0.0.1:0` listener.
 
 ## Rules
 

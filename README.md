@@ -14,6 +14,8 @@ The module path is lowercase, although the repository is named `Go-kit`. GitHub 
 |---|---|
 | `apperr` | Marks the errors whose text is safe to return to an API caller. `apperr.Message(err)` is the only way an error's text reaches a response. |
 | `problem` | The `application/problem+json` error body, with the `error_code` field clients switch on. |
+| `requestid` | Middleware that takes `X-Request-ID` or generates one, plus `FromContext` to read it back for logging. |
+| `httpserver` | Runs an HTTP server that drains in-flight requests when its context is cancelled, with `SignalContext` for SIGTERM. |
 
 ```go
 var ErrTaskNotFound = apperr.New("task does not exist")
@@ -26,6 +28,18 @@ func (h *Handler) getTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ...
+}
+```
+
+```go
+func main() {
+	ctx, stop := httpserver.SignalContext(context.Background())
+	defer stop()
+
+	srv := httpserver.Server{Addr: ":8080", Handler: requestid.Middleware(router)}
+	if err := srv.Run(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
