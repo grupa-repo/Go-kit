@@ -48,16 +48,6 @@ func main() {
 }
 ```
 
-## Using a private module
-
-This repository is private, so Go needs to be told not to use the public proxy and needs credentials to fetch it:
-
-```
-go env -w GOPRIVATE=github.com/grupa-repo/*
-```
-
-CI and any hosted build that compiles a consumer need read access as well.
-
 ## Working on it next to a service
 
 Create a `go.work` in the folder that holds the repositories, listing this one and the service you are changing. `go.work` is gitignored, so it stays local.
@@ -71,7 +61,25 @@ go work init ./Go-kit ./your-service
 - More than one service needs it. Code only one service uses stays in that service.
 - Standard library only, unless there is a strong reason. A dependency here becomes a dependency of every service.
 - No service-specific names, codes or configuration.
-- Released by tag (`vMAJOR.MINOR.PATCH`). Services pin a version in `go.mod`.
+- Released by tag. Services pin a version in `go.mod`.
+
+## Releasing
+
+A change here reaches a service in two steps: a tag, then a version bump in that service. Until both happen, nothing changes in production.
+
+1. Merge to `main` and wait for CI to pass.
+2. Tag the commit and push the tag:
+
+   ```
+   git tag -a v0.2.0 -m "v0.2.0"
+   git push origin v0.2.0
+   ```
+
+3. In each service: `go get github.com/grupa-repo/go-kit@v0.2.0`, then build and test.
+
+Versions follow `vMAJOR.MINOR.PATCH`. While the module is on `v0.x`, a breaking change bumps the minor version and everything else bumps the patch. A breaking change is anything that stops a service compiling or changes what it sends: a removed or renamed export, a changed signature, a changed JSON field.
+
+Never move or delete a tag that has been pushed. Go's public proxy and checksum database keep the first contents they saw for a version, so a moved tag fails verification for everyone who fetches it. Fix a bad release with a new one.
 
 ## Development
 
