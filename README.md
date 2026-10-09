@@ -16,6 +16,11 @@ The module path is lowercase, although the repository is named `Go-kit`. GitHub 
 | `problem` | The `application/problem+json` error body, with the `error_code` field clients switch on. |
 | `requestid` | Middleware that takes `X-Request-ID` or generates one, plus `FromContext` to read it back for logging. |
 | `httpserver` | Runs an HTTP server that drains in-flight requests when its context is cancelled, with `SignalContext` for SIGTERM. |
+| `httpjson` | `Write` a JSON response; `Decode` a request body, capped at 1 MiB. |
+| `apidocs` | Serves an OpenAPI document and a Scalar viewer at `/docs`, registered only when enabled. |
+| `sqlpool` | Opens a `database/sql` pool with explicit connection limits and refuses an unlimited one. The caller imports the driver. |
+| `appenv` | `IsDeployed` and `DocsEnabled`: the two decisions that depend on the `APP_ENV` name, each failing safe for an unrecognised one. |
+| `secret` | `Fingerprint`: a short hash for comparing a secret across services without printing it. |
 
 ```go
 var ErrTaskNotFound = apperr.New("task does not exist")

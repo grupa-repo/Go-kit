@@ -12,6 +12,11 @@
 - `apperr/` — errors whose message is safe for an API caller; `Message(err)` extracts it, `""` otherwise.
 - `problem/` — the `application/problem+json` error body.
 - `requestid/` — `X-Request-ID` middleware and `FromContext`. Rejects inbound values that are unsafe to log.
+- `httpjson/` — `Write` and `Decode` (1 MiB cap, `ErrNoBody`, `ErrTooLarge`).
+- `apidocs/` — `Register(router, enabled, title, spec)`; disabled means not registered, so the paths 404. `Router` is a one-method interface chi satisfies.
+- `sqlpool/` — `Open(ctx, driver, dsn, Limits)`; `MaxOpen` is required. Tests use a fake `database/sql` driver, no database.
+- `appenv/` — `IsDeployed` (deny-list of local names) and `DocsEnabled` (allow-list). The opposite shapes are deliberate; do not unify them.
+- `secret/` — `Fingerprint`. Its output is compared across services and tools, so the algorithm must never change; the test pins known values.
 - `httpserver/` — `Server.Run(ctx)` drains in-flight requests on cancel; `SignalContext` cancels on SIGINT/SIGTERM. Tests use `Serve` on a `127.0.0.1:0` listener.
 
 ## Rules
