@@ -18,11 +18,13 @@
 - `appenv/` — `IsDeployed` (deny-list of local names) and `DocsEnabled` (allow-list). The opposite shapes are deliberate; do not unify them.
 - `secret/` — `Fingerprint`. Its output is compared across services and tools, so the algorithm must never change; the test pins known values.
 - `httpserver/` — `Server.Run(ctx)` drains in-flight requests on cancel; `SignalContext` cancels on SIGINT/SIGTERM. Tests use `Serve` on a `127.0.0.1:0` listener.
+- `applog/` — `New(Options)` returns an independent `*Logger` each call (no singleton). `ParseLevel` maps unknown names to info. Takes `Hooks`; it must not import sentry-go.
+- `appsentry/` — `Init(Options)` and `Hook()`. The hook is a no-op until `Init` enables a client, and flushes on a fatal event because the process exits before a deferred flush runs. Tests swap the transport through `export_test.go`; nothing is sent.
 
 ## Rules
 
 - **Only what more than one service needs.** Code one service uses belongs in that service.
-- **Standard library only** unless asked. Every dependency added here lands in every consumer.
+- **Standard library only** unless asked. Every dependency added here lands in every consumer. zerolog and sentry-go are the two that were asked for; keep them inside `applog` and `appsentry`.
 - **Nothing service-specific:** no hostnames, app names, error codes, configuration or credentials. Write every file as if the repository were public.
 - **An exported name is contract.** Changing or removing one breaks consumers at their next version bump: add, do not rename, and call out any breaking change so the tag gets a major (or, before v1, a minor) bump.
 - **JSON field names in `problem` are API contract** with clients. Never change them.

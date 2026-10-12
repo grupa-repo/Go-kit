@@ -21,6 +21,8 @@ The module path is lowercase, although the repository is named `Go-kit`. GitHub 
 | `sqlpool` | Opens a `database/sql` pool with explicit connection limits and refuses an unlimited one. The caller imports the driver. |
 | `appenv` | `IsDeployed` and `DocsEnabled`: the two decisions that depend on the `APP_ENV` name, each failing safe for an unrecognised one. |
 | `secret` | `Fingerprint`: a short hash for comparing a secret across services without printing it. |
+| `applog` | The services' logger: zerolog JSON on stdout, levelled, with `WithReqID` to stamp a request's lines. Takes hooks, so it does not import an error tracker itself. |
+| `appsentry` | `Init` for Sentry, with credential headers scrubbed from every event, and `Hook`, which reports logged errors at their severity. Does nothing without a DSN. |
 
 ```go
 var ErrTaskNotFound = apperr.New("task does not exist")
@@ -59,7 +61,7 @@ go work init ./Go-kit ./your-service
 ## Rules for what goes in
 
 - More than one service needs it. Code only one service uses stays in that service.
-- Standard library only, unless there is a strong reason. A dependency here becomes a dependency of every service.
+- Standard library only, unless there is a strong reason. A dependency here becomes a dependency of every service. The two exceptions are zerolog (`applog`) and sentry-go (`appsentry`), which every service already used.
 - No service-specific names, codes or configuration.
 - Released by tag. Services pin a version in `go.mod`.
 
